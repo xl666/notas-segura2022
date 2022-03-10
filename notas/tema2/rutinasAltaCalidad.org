@@ -1,0 +1,135 @@
+#+title: Características de una rutina de alta calidad
+
+* Tiene un nombre descriptivo
+- Son un verbo, o de preferencia un verbo seguido de un sustantivo
+- Evitar nombres genéricos como "ejecutar", "iniciar", "hacer", etc.
+- Evitar sólo poner un sustantivo, las rutinas representan
+  acciones
+
+* No tienen demasiado parámetros
+- Entre menos mejor
+- Algunos autores señalan que máximo debería ser 7
+
+* Los parámetros deben ser descriptivos
+- Utilizar un sustantivo en el contexto del problema
+- Este principio aplica a cualquier variable definida dentro de la
+  rutina
+- Evitar nombres de una sola letra, salvo en casos especiales donde es
+  una práctica bien conocida nombrar a un tipo de variable de cierta
+  forma (por ejemplo =i= como variable de control de un for)
+
+* No tienen efectos colaterales
+- Un efecto colateral es una salida o efecto inesperado, comúnmente
+  silencioso que se produce al invocar una rutina
+- Al ser inesperado suele generar bugs
+- Al ser silencioso suele ser difícil de corregir
+- Es común que suceda cuando se manipulan referencias (osea memoria)
+  de forma directa (no haciendo una copia de la estructura a manipular)
+- Nunca usar variables globales
+- En POO la manipulación de atributos puede introducir efectos
+  colaterales
+- Hay lenguajes donde los efectos colaterales se restringen al no permitir modificar variables (datos inmutables), ejemplo: Clojure, Haskell
+
+  #+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+    def calcular_sumatoria(lista_numeros, valor):
+        lista_numeros = lista_numeros[:] # copiar lista, evita el efecto colateral
+        resultado = 0
+        lista_numeros[0] += 1 
+        for numero in lista_numeros:
+            resultado += numero
+        valor += 1
+        return resultado + valor
+
+    lista = [1, 2, 3, 4, 5]
+    valor = 1
+    print(calcular_sumatoria(lista, valor))
+    print(lista)
+    print(valor)
+    print(calcular_sumatoria(lista, valor))
+  #+end_src
+
+  #+RESULTS:
+  : 18
+  : [1, 2, 3, 4, 5]
+  : 1
+  : 18
+
+
+* Está bien documentada
+- No es lo mismo documentar que comentar
+- La documentación es una cadena o comentario especial que se pone
+  antes o justo después del prototipo de una rutina (dependiendo del
+  lenguaje) y su función es describir lo que hace la rutina, qué
+  parámetros recibe y qué regresa como resultado
+- Hay que evitar usar comentarios salvo cuando de hecho mejoran la
+  legibilidad (por ejemplo describiendo lo que hace una expresión
+  regular)
+- Un código claro no necesita comentarios, los comentarios aumentan
+  los problemas de
+ mantenimiento
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+
+  def sumar(numero1: int, numero2: int):
+      """
+      Suma dos números.
+
+      Keyword Arguments:
+      numero1: int operando 1 
+      numero2: int operando 2
+      returns: int
+      """
+      if type(numero1) != type(1): # defenderse
+          return None
+
+      re = '\d+[a-z]*@\.([a-z]+)' # capturar dominio de correo, buen comentario
+      return numero1 + numero2 + 1 # terminar función, mal comentario
+  #+end_src
+
+
+
+* No manipulan memoria de forma descuidada
+- Esto varía mucho de lenguaje en lenguaje
+- Cada lenguaje tiene formas diferentes de lidiar (o no hacer nada )
+  ante defectos en el manejo de memoria
+- Considérese el caso en el que se intenta tener acceso a una casilla
+  inválida en un arreglo (o estructura equivalente)
+  
+  #+begin_src javascript 
+    arreglo = [1, 2, 3]
+    arreglo[100] = 10; // las casillas de la 3 a 99 van a tener none
+#+end_src
+
+#+begin_src C 
+  int* arr = {1, 2, 3};
+  arr[100] = 10; // sobeescribe memoria que no tiene nada que ver con el arreglo, posiblemente generando un segfault (error de segmentación)
+#+end_src
+
+- Error de segmentación: ocurre principalmente cuando un proceso
+  intenta escribir en la memoria de otro proceso de forma directa
+
+  #+begin_src python
+    l = [1, 2, 3]
+    l[100] = 10 # index out of range, en tiempo de ejecución debido a que el lenguaje es interpretado 
+#+end_src
+
+#+begin_src java
+  int[] arreglo = new int[3];
+  arreglo[100] = 10; // index out of range, en tiempo de compilación, debido a que el lenguaje es campilado 
+#+end_src
+
+* No usa números mágicos
+- Son números literales que no se sabe de dónde vienen
+- Muy común en ciclos for
+
+  #+begin_src python
+    for val in range(12): # de dosde sale el 12?
+        print(val)
+
+    longitud = 12
+    for val in range(longitud): # ok es la longitud
+        print(val)
+
+#+end_src
+
+  
