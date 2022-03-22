@@ -1,0 +1,91 @@
+* Biblioteca
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+import logging
+#+end_src
+ 
+
+* Log levels:
+- Dependiendo del tipo de evento puede quererse establecer una
+  categoría 
+  
+- DEBUG: sólo relevante cuando desarrollas,  por ejemplo para
+  comprobar el valor de una variable. No tiene que ver con un
+  error. Es un tipo de mensaje inocuo 
+- INFO: Son inocuos, no tienen que ver con errores, sirven para establecer que algo sucedió, por
+  ejemplo que alguien inició sesión en el sistema 
+- WARNING: No son errores, pero establecen un suceso que puede generar
+  un problema futuro, también sirve para establecer recomendaciones
+- ERROR: tipo de error estándar para cualquier excepción
+- CRITICAL: es también un tipo de error pero de mayor urgencia, por
+  ejemplo un error que puede tirar el sistema o destruir datos
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+  logging.debug('This is a debug message')
+  logging.info('This is an info message')
+  logging.warning('This is a warning message')
+  logging.error('This is an error message')
+  logging.critical('This is a critical message')
+#+end_src 
+
+
+
+* Configuración
+
+- =basicConfig()=  sólo se puede llamar una vez por programa,
+  logging.debug, etc lo llaman implícitamente. El default es imprimir
+  en consola (stdout) a partir de nivel warning
+- keywords (parámetros):
+  + level: The root logger will be set to the specified severity. Es
+    el nivel mínimo de evento que puedes establecer
+    level.  Los que estén igual o abajo no se logean en archivo
+  + filename: This specifies the file.
+  + filemode: If filename is given, the file is opened in this
+    mode. The default is a, which means append.
+  + format: This is the format of the log message.
+
+* Log a archivo
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+      logging.basicConfig(filename='app.log',
+                          filemode='w',
+                          format='%(name)s - %(levelname)s - %(message)s')
+#+end_src
+
+
+
+* Formato
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+    logging.basicConfig(format='%(asctime)s - %(message)s',
+                        level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s - %(message)s',
+                        datefmt='%d-%b-%y %H:%M:%S')
+#+end_src
+
+
+* f-strings
+
+- No está relacionado directamente con bitácoras 
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+  name = 'John'
+  logging.error(f'{name} raised an error')
+#+end_src
+
+
+
+* Guardar Stacktrace
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+try:
+  c = a / b
+except Exception as e:
+  logging.error("Exception occurred", exc_info=True)
+
+try:
+  c = a / b
+except Exception as e:
+  logging.exception("Exception occurred")
+#+end_src
+
+
+
