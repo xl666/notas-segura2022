@@ -1,0 +1,128 @@
+#+title:Ámbito (scope)
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+  var = 20 # global
+  var2 = 10
+  var = 10
+
+  def fun(var): # variable de la función
+       print(var + var2)
+       varx = 11
+       var = 0
+
+  fun(var)
+  print(var)
+  print(varx)
+
+#+end_src
+
+#+RESULTS:
+: 30
+: 20
+
+- El tiempo de vida de una estructura de datos u objeto es diferente a su ámbito
+- Realmente lo que tiene un ámbito es el identificador en si, no el objeto al que hace referencia
+- Si un objeto sigue contando con referencias en otro ámbito vivo, seguirá viviendo
+- Evitar el ámbito global porque las cosas que se definen ahí viven
+  durante el resto del programa
+- Las variables no existen, lo que hay son identificadores y referencias, haciendo la distinción entre datos primitivos y datos complejos
+- Los datos primitivos son datos que el procesador puede manejar de forma directa, muchas veces sin necesitar memoria RAM, esto es se usan registros del procesador
+- Los datos complejos se manejan siempre a partir de referencias de memoria (con apuntadores)
+
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+  lista = [1, 2, 3, 4]
+
+  def fun(lista_interna):
+      l = [3, 4] # esto se va a recolectar
+      return lista_interna[0] # muere en ámbito de lista_interna
+
+
+  fun(lista)
+  print(lista)
+
+#+end_src
+
+#+RESULTS:
+: [1, 2, 3, 4]
+
+
+* Niveles
+- clase
+- En python realmente no existe el ámbito de clase, utiliza un truco:
+  tener un parámetro especial =self= que contiene una referencia al
+  propio objeto
+  #+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+
+    class Prueba:
+        def __init__(self, att):
+            self.att = att # definido a nivel de clase, más o menos, realmente no, el self tiene un ámbito de función
+        def metodo(self):
+            print(self.att)
+
+
+    obj = Prueba(20)
+    print(obj.att)
+
+  #+end_src
+
+  #+RESULTS:
+  : 20
+
+- Java si tiene ámbito de clase
+
+#+begin_src java
+
+  public class Prueba {
+      static int global = 3; // var global
+      private int att; // esto está en el ámbito de clase
+
+      public void metodo() {
+          System.out.println(att)
+
+              }
+  }
+
+#+end_src
+
+- Ámbito de función o método
+- En python se pueden definir funciones dentro de otras funciones
+  
+  #+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+
+    def externa(param): # ámbita global
+        def interna(val): # ámbito de función
+            otra  = 'hola' # misma ámbito que val
+            return param + val
+        def externa():
+            pass
+        externa() # no hay recursividad
+        return interna
+
+    f = externa(3) # closure, el 3 queda atrapado
+    print(f(4))
+    print(f(3))
+
+  #+end_src
+
+  #+RESULTS:
+  : 7
+  : 6
+
+- Ámbito de bloque
+- Python no tiene este ámbito
+- Java si lo tiene
+
+#+begin_src python :session *py* :results output :exports both :tangled /tmp/test.py
+  def f():
+      for elem in [1, 2, 3, 4]:
+          nueva = True # en ámbito de función
+      print(nueva)
+
+  f()
+
+
+#+end_src  
+
+#+RESULTS:
+: True
